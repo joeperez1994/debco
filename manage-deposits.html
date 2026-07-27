@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>DEBCO — Manage Deposits</title>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;700;800;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:#0b0f18;color:#eef2f8;font-family:'Archivo',system-ui,sans-serif;min-height:100vh;padding:60px 20px}
+  .mono{font-family:'IBM Plex Mono',monospace}
+  .wrap{max-width:760px;margin:0 auto}
+  .head{display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;gap:16px;flex-wrap:wrap}
+  h1{font-size:22px;font-weight:800;text-transform:uppercase;letter-spacing:-.01em}
+  .sub{color:#93a0b5;font-size:13.5px;margin-top:4px}
+  button.refresh{background:none;border:1px solid rgba(255,255,255,.18);color:#eef2f8;padding:10px 18px;border-radius:2px;cursor:pointer;font-family:inherit;font-size:13px}
+  button.refresh:hover{border-color:#4b8fe2}
+  .card{background:#131a27;border:1px solid rgba(255,255,255,.09);border-radius:4px;padding:22px;margin-bottom:14px}
+  .card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:16px}
+  .card-name{font-size:17px;font-weight:800}
+  .card-equip{color:#93a0b5;font-size:13.5px;margin-top:2px}
+  .card-amount{font-size:24px;font-weight:900;white-space:nowrap}
+  .card-date{font-family:'IBM Plex Mono',monospace;font-size:11px;color:#6b7789;letter-spacing:.08em;margin-bottom:16px}
+  .card-actions{display:flex;gap:10px;flex-wrap:wrap}
+  .card-actions button{flex:1;min-width:160px;padding:12px 14px;border-radius:2px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;letter-spacing:.02em}
+  .btn-release{background:rgba(126,201,138,.12);border:1px solid rgba(126,201,138,.4);color:#a9e0b3}
+  .btn-release:hover{background:rgba(126,201,138,.2)}
+  .btn-capture{background:rgba(226,180,75,.12);border:1px solid rgba(226,180,75,.4);color:#f0d3a9}
+  .btn-capture:hover{background:rgba(226,180,75,.2)}
+  .empty,.loading{color:#6b7789;font-size:14px;padding:30px 0;text-align:center}
+  .err{background:rgba(226,75,75,.1);border:1px solid rgba(226,75,75,.35);color:#f0a9a9;padding:14px 16px;border-radius:2px;font-size:13.5px;margin-bottom:16px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="head">
+    <div>
+      <h1>Held Deposits</h1>
+      <div class="sub">$50 deposit authorization holds awaiting release or capture.</div>
+    </div>
+    <button class="refresh" id="refresh-btn">Refresh List</button>
+  </div>
+  <div id="error-box"></div>
+  <div id="list"></div>
+</div>
+
+<script>
+function fmtDate(unix) {
+  return new Date(unix * 1000).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' });
+}
+
+function loadDeposits() {
+  var list = document.getElementById('list');
+  var errBox = document.getElementById('error-box');
+  errBox.innerHTML = '';
+  list.innerHTML = '<div class="loading">Loading held deposits…</div>';
+
+  fetch('/.netlify/functions/list-held-deposits')
+    .then(function (r) { return r.json(); })
+    .then(function (result) {
+      if (result.error) throw new Error(result.error);
+      var holds = result.holds || [];
+      if (holds.length === 0) {
+        list.innerHTML = '<div class="empty">No deposits currently on hold.</div>';
+        return;
+      }
+      list.innerHTML = '';
+      holds.forEach(function (h) {
+        var card = document.createElement('div');
+        card.className = 'card';
+        card.innerHTML =
+          '<div class="card-top">' +
+            '<div><div class="card-name">' + escapeHtml(h.renter_name) + '</div><div class="card-equip">' + escapeHtml(h.equipment) + '</div></div>' +
+            '<div class="card-amount mono">$' + h.amount.toFixed(2) + '</div>' +
+          '</div>' +
+          '<div class="card-date mono">HELD ' + fmtDate(h.created) + '</div>' +
+          '<div class="card-actions">' +
+            '<button class="btn-release" data-action="release">✅ Equipment OK — Release</button>' +
+            '<button class="btn-capture" data-action="capture">⚠️ Keep Deposit</button>' +
+          '</div>';
+        card.querySelector('[data-action="release"]').addEventListener('click', function () { handleAction(h.id, 'release', h.renter_name); });
+        card.querySelector('[data-action="capture"]').addEventListener('click', function () { handleAction(h.id, 'capture', h.renter_name); });
+        list.appendChild(card);
+      });
+    })
+    .catch(function (err) {
+      list.innerHTML = '';
+      errBox.innerHTML = '<div class="err">Could not load deposits: ' + escapeHtml(err.message) + '</div>';
+    });
+}
+
+function handleAction(paymentIntentId, action, renterName) {
+  var confirmMsg = action === 'release'
+    ? 'Release this $50 hold for ' + renterName + '? No charge will be made.'
+    : 'Capture this $50 deposit for ' + renterName + '? This will charge their card.';
+  if (!window.confirm(confirmMsg)) return;
+
+  fetch('/.netlify/functions/manage-deposit', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ payment_intent_id: paymentIntentId, action: action })
+  })
+    .then(function (r) { return r.json(); })
+    .then(function (result) {
+      if (result.error) throw new Error(result.error);
+      setTimeout(loadDeposits, 1500);
+    })
+    .catch(function (err) {
+      alert('Action failed: ' + err.message);
+    });
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, function (c) { return { '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]; });
+}
+
+document.getElementById('refresh-btn').addEventListener('click', loadDeposits);
+loadDeposits();
+</script>
+</body>
+</html>

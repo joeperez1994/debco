@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>DEBCO — Collect Balance</title>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;700;800;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:#0b0f18;color:#eef2f8;font-family:'Archivo',system-ui,sans-serif;min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:60px 20px}
+  .mono{font-family:'IBM Plex Mono',monospace}
+  .panel{width:100%;max-width:520px;background:#131a27;border:1px solid rgba(255,255,255,.09);border-radius:4px;padding:36px}
+  h1{font-size:22px;font-weight:800;text-transform:uppercase;letter-spacing:-.01em;margin-bottom:6px}
+  .sub{color:#93a0b5;font-size:13.5px;margin-bottom:28px}
+  label{display:block;font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#6b7789;margin-bottom:8px;margin-top:18px}
+  label:first-of-type{margin-top:0}
+  input,select{width:100%;padding:13px;background:#0a0e16;border:1px solid rgba(255,255,255,.1);border-radius:2px;color:#eef2f8;font-family:inherit;font-size:15px}
+  input:focus,select:focus{outline:none;border-color:#4b8fe2}
+  .total-row{display:flex;align-items:center;justify-content:space-between;margin-top:22px;padding-top:18px;border-top:1px solid rgba(255,255,255,.08)}
+  .total-row .lbl{font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.1em;color:#a4b1c6;text-transform:uppercase}
+  .total-row .val{font-size:24px;font-weight:900}
+  button{width:100%;margin-top:26px;padding:16px;background:#4b8fe2;color:#0b0f18;font-weight:800;letter-spacing:.06em;font-size:14px;text-transform:uppercase;border:none;border-radius:2px;cursor:pointer}
+  button:disabled{opacity:.55;cursor:not-allowed}
+  .link-box{margin-top:20px;padding:14px;background:#0a0e16;border:1px solid rgba(255,255,255,.1);border-radius:2px;font-size:13px;word-break:break-all;color:#7fb2f2;display:none}
+  .msg{margin-top:16px;padding:12px 14px;border-radius:2px;font-size:13.5px;display:none}
+  .msg.err{background:rgba(226,75,75,.1);border:1px solid rgba(226,75,75,.35);color:#f0a9a9}
+  .status-page{text-align:center;padding:60px 20px}
+  .status-page .icon{font-size:40px;margin-bottom:12px}
+  .status-page h2{font-size:20px;font-weight:800;text-transform:uppercase}
+  a{color:#7fb2f2}
+</style>
+</head>
+<body>
+
+<div class="panel" id="app">
+  <div id="status-view" style="display:none" class="status-page"></div>
+
+  <div id="tool-view">
+    <h1>Collect Remaining Balance</h1>
+    <p class="sub">Generate a payment link for the full remaining rental balance. The $50 deposit is handled separately — do not subtract it here.</p>
+
+    <label for="equipment">Equipment</label>
+    <select id="equipment">
+      <option value="Yale 50VX Forklift" data-rate="120">Yale 50VX Forklift — $120/day</option>
+      <option value="Generac Light Tower" data-rate="35">Generac Light Tower — $35/day</option>
+      <option value="25 kW Generator" data-rate="65">25 kW Generator — $65/day</option>
+      <option value="Deck Trailer" data-rate="100">Deck Trailer — $100/day</option>
+      <option value="Car Hauler Trailer" data-rate="110">Car Hauler Trailer — $110/day</option>
+      <option value="Tilt Trailer" data-rate="65">Tilt Trailer — $65/day</option>
+      <option value="Utility Trailer" data-rate="70">Utility Trailer — $70/day</option>
+    </select>
+
+    <label for="days">Number of Days</label>
+    <input type="number" id="days" min="1" value="1">
+
+    <label for="total">Total Price (editable — overwrite to apply a discount)</label>
+    <input type="text" id="total" inputmode="decimal">
+
+    <label for="cust-name">Customer Name (optional)</label>
+    <input type="text" id="cust-name">
+
+    <label for="cust-email">Customer Email (optional)</label>
+    <input type="email" id="cust-email">
+
+    <div class="total-row">
+      <span class="lbl">Balance Due Now</span>
+      <span class="val mono" id="balance-display">$0.00</span>
+    </div>
+
+    <button type="button" id="generate-btn">Generate Payment Link</button>
+    <div class="msg err" id="error-msg"></div>
+    <div class="link-box" id="link-box"></div>
+  </div>
+</div>
+
+<script>
+var equipSel = document.getElementById('equipment');
+var daysInput = document.getElementById('days');
+var totalInput = document.getElementById('total');
+var balanceDisplay = document.getElementById('balance-display');
+
+function currentRate() { return Number(equipSel.selectedOptions[0].getAttribute('data-rate')) || 0; }
+function recalcTotal() {
+  var days = Number(daysInput.value) || 0;
+  totalInput.value = (currentRate() * days).toFixed(2);
+  syncBalance();
+}
+function syncBalance() {
+  var v = Number(totalInput.value) || 0;
+  balanceDisplay.textContent = '$' + v.toFixed(2);
+}
+equipSel.addEventListener('change', recalcTotal);
+daysInput.addEventListener('input', recalcTotal);
+totalInput.addEventListener('input', syncBalance);
+recalcTotal();
+
+document.getElementById('generate-btn').addEventListener('click', function () {
+  var btn = this;
+  var errMsg = document.getElementById('error-msg');
+  var linkBox = document.getElementById('link-box');
+  errMsg.style.display = 'none';
+  linkBox.style.display = 'none';
+
+  var amount = Number(totalInput.value);
+  if (!amount || amount <= 0) {
+    errMsg.textContent = 'Enter a valid total price.';
+    errMsg.style.display = 'block';
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Generating…';
+
+  fetch('/.netlify/functions/create-balance-checkout', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      amount: amount,
+      name: document.getElementById('cust-name').value,
+      equipment: equipSel.value,
+      email: document.getElementById('cust-email').value,
+      siteUrl: window.location.origin
+    })
+  })
+    .then(function (r) { return r.json(); })
+    .then(function (result) {
+      btn.disabled = false;
+      btn.textContent = 'Generate Payment Link';
+      if (result.url) {
+        linkBox.textContent = result.url;
+        linkBox.style.display = 'block';
+      } else {
+        throw new Error(result.error || 'Unable to generate link');
+      }
+    })
+    .catch(function (err) {
+      btn.disabled = false;
+      btn.textContent = 'Generate Payment Link';
+      errMsg.textContent = err.message;
+      errMsg.style.display = 'block';
+    });
+});
+
+(function checkPaidStatus() {
+  var params = new URLSearchParams(window.location.search);
+  var paid = params.get('paid');
+  if (!paid) return;
+  document.getElementById('tool-view').style.display = 'none';
+  var view = document.getElementById('status-view');
+  view.style.display = 'block';
+  if (paid === 'success') {
+    view.innerHTML = '<div class="icon">✅</div><h2>Payment Received</h2>';
+  } else {
+    view.innerHTML = '<div class="icon">⚠️</div><h2>Payment Cancelled</h2>';
+  }
+})();
+</script>
+</body>
+</html>
