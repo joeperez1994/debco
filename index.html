@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>DEBCO Equipment &amp; Trailer Rentals — Permian Basin, Midland TX</title>
-<meta name="description" content="Forklifts, generators, and trailers for rent in the Permian Basin. Book online, sign your rental agreement digitally, and get to work.">
+<meta name="description" content="Forklifts and trailers for rent in the Permian Basin. Book online, sign your rental agreement digitally, and get to work.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -306,13 +306,13 @@ canvas[data-particles]{position:fixed;inset:0;z-index:1;pointer-events:none;opac
   <section id="top" class="hero">
     <div class="hero-eyebrow"><span class="rule"></span>Permian Basin · Equipment &amp; Trailer Rentals</div>
     <h1 class="hero-h">Ready<br>When <span class="sweep">You Are.</span></h1>
-    <p class="hero-p">Forklifts, generators, and trailers — inspected, staged, and ready to work. Book online, sign your agreement digitally, and get back to the job. No runaround.</p>
+    <p class="hero-p">Forklifts and trailers — inspected, staged, and ready to work. Book online, sign your agreement digitally, and get back to the job. No runaround.</p>
     <div class="hero-cta">
       <a href="#fleet" class="btn btn-primary">Browse the Fleet →</a>
       <a href="#contact" class="btn btn-outline">Get a Quote</a>
     </div>
     <div class="hero-stats">
-      <div><div class="stat-num" data-count="6">0</div><div class="stat-label">Units in Fleet</div></div>
+      <div><div class="stat-num" data-count="5">0</div><div class="stat-label">Units in Fleet</div></div>
       <div><div class="stat-num">24/7</div><div class="stat-label">Online Booking</div></div>
       <div><div style="display:flex;align-items:baseline"><span class="stat-num">$</span><span class="stat-num" data-count="35">0</span></div><div class="stat-label">Daily Rates From</div></div>
       <div style="display:flex;align-items:center;gap:11px"><span class="dot-live"></span><span class="mono" style="font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--text-secondary)">Available Now</span></div>
@@ -401,7 +401,6 @@ canvas[data-particles]{position:fixed;inset:0;z-index:1;pointer-events:none;opac
             <select required id="booking-equipment" name="equipment">
               <option value="">Select equipment…</option>
               <option value="Yale 50VX Forklift">Yale 50VX Forklift — $120/day</option>
-              <option value="25 kW Generator">25 kW Generator — $65/day</option>
               <option value="Deck Trailer">Equipment Trailer 14–17 ft — $100/day</option>
               <option value="Car Hauler Trailer">Car Hauler 102×20 ft — $110/day</option>
               <option value="Tilt Trailer">Steel Deck Tilt Trailer 10 ft — $65/day</option>
@@ -507,7 +506,6 @@ canvas[data-particles]{position:fixed;inset:0;z-index:1;pointer-events:none;opac
           <select required name="equipment" id="quote-equipment">
             <option value="">Select equipment…</option>
             <option value="Yale 50VX Forklift">Yale 50VX Forklift</option>
-            <option value="25 kW Generator">25 kW Generator</option>
             <option value="Deck Trailer">Deck Trailer</option>
             <option value="Car Hauler Trailer">Car Hauler Trailer</option>
             <option value="Tilt Trailer">Tilt Trailer</option>
@@ -588,7 +586,6 @@ canvas[data-particles]{position:fixed;inset:0;z-index:1;pointer-events:none;opac
    ========================================================= */
 var equipmentRates = {
   'Yale 50VX Forklift': 120,
-  '25 kW Generator': 65,
   'Deck Trailer': 100,
   'Car Hauler Trailer': 110,
   'Tilt Trailer': 65,
@@ -597,7 +594,6 @@ var equipmentRates = {
 
 var FLEET = [
   { key: 'Yale 50VX Forklift', imgs: ['yale-forklift.svg'], name: 'Yale 50VX Forklift', spec: '4,800 lb capacity · Cushion tires', price: 120 },
-  { key: '25 kW Generator', imgs: ['generator-25kw.svg'], name: '25 kW Generator', spec: 'Reliable power for remote & oilfield sites', price: 65 },
   { key: 'Deck Trailer', imgs: ['deck-trailer.svg'], fit: 'cover', name: 'Equipment Trailer — 14–17 ft', spec: '74" wide · Steel deck · 2×6k axles · 10k GVWR', price: 100 },
   { key: 'Car Hauler Trailer', imgs: ['car-hauler-1.svg','car-hauler-2.svg','car-hauler-3.svg','car-hauler-thumb.svg'], name: 'Car Hauler — 102×20 ft', spec: '102" wide · 14k GVWR · 13,500 lb wireless winch', price: 110 },
   { key: 'Tilt Trailer', imgs: ['tilt-trailer-1.svg','tilt-trailer-thumb.svg'], name: 'Steel Deck Tilt Trailer — 10 ft', spec: 'Hydraulic damper for smooth loading', price: 65 },
