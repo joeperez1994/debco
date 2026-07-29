@@ -100,6 +100,9 @@ canvas[data-particles]{position:fixed;inset:0;z-index:1;pointer-events:none;opac
 .fleet-head{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;flex-wrap:wrap;margin-bottom:56px}
 .fleet-head p{max-width:340px;font-size:15px;line-height:1.65;color:var(--text-muted)}
 .fleet-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:26px}
+.fleet-dots{display:none;justify-content:center;gap:9px;margin-top:22px}
+.fleet-dot{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.25);border:none;padding:0;cursor:pointer;transition:background .3s,transform .3s}
+.fleet-dot.active{background:var(--accent);transform:scale(1.4)}
 .fleet-card{position:relative;background:var(--panel);border:1px solid var(--hairline-strong);border-radius:4px;overflow:hidden;transition:transform .5s cubic-bezier(.16,.84,.44,1),border-color .5s,box-shadow .5s}
 .fleet-card:hover{transform:translateY(-8px);border-color:rgba(75,143,226,.45);box-shadow:0 24px 60px rgba(0,0,0,.5)}
 .fleet-main{position:relative;aspect-ratio:16/11;overflow:hidden;background:var(--bg-deep);cursor:zoom-in}
@@ -265,6 +268,10 @@ canvas[data-particles]{position:fixed;inset:0;z-index:1;pointer-events:none;opac
   .wrap,.hero,.fleet-head{padding-left:22px;padding-right:22px}
   section{padding-left:22px!important;padding-right:22px!important}
   .about-grid,.contact-grid,.callout-grid,.booking-grid,.quote-form{grid-template-columns:1fr!important}
+  .fleet-grid{display:flex;grid-template-columns:none;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scroll-behavior:smooth;gap:16px;margin:0 -22px;padding:0 22px 6px;scrollbar-width:none}
+  .fleet-grid::-webkit-scrollbar{display:none}
+  .fleet-card{flex:0 0 86%;scroll-snap-align:center}
+  .fleet-dots{display:flex}
 }
 </style>
 </head>
@@ -328,6 +335,7 @@ canvas[data-particles]{position:fixed;inset:0;z-index:1;pointer-events:none;opac
       <p data-reveal>Every unit is inspected and staged before it leaves the yard. Real-time availability, straightforward daily rates.</p>
     </div>
     <div class="fleet-grid" data-fleet-grid></div>
+    <div class="fleet-dots" data-fleet-dots></div>
   </section>
 
   <section id="why" class="wrap" style="padding:110px 44px">
@@ -676,6 +684,36 @@ function buildFleet() {
     card.querySelector('[data-fleet-quote]').addEventListener('click', function () { selectEquipmentAndQuote(f.key); });
     grid.appendChild(card);
   });
+  setupFleetCarousel(grid);
+}
+
+/* Swipeable carousel on narrow screens (see .fleet-grid rules inside the
+   860px media query) — dots double as click-to-jump controls and stay
+   hidden on wide screens where the grid lays out normally. */
+function setupFleetCarousel(grid) {
+  var dotsWrap = document.querySelector('[data-fleet-dots]');
+  if (!dotsWrap) return;
+  var cards = Array.prototype.slice.call(grid.querySelectorAll('.fleet-card'));
+  dotsWrap.innerHTML = '';
+  var dots = cards.map(function (card, i) {
+    var dot = document.createElement('button');
+    dot.type = 'button';
+    dot.className = 'fleet-dot' + (i === 0 ? ' active' : '');
+    dot.setAttribute('aria-label', 'Go to equipment ' + (i + 1));
+    dot.addEventListener('click', function () { card.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' }); });
+    dotsWrap.appendChild(dot);
+    return dot;
+  });
+  if (!('IntersectionObserver' in window)) return;
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (en) {
+      if (en.isIntersecting) {
+        var idx = cards.indexOf(en.target);
+        dots.forEach(function (d, i) { d.classList.toggle('active', i === idx); });
+      }
+    });
+  }, { root: grid, threshold: 0.6 });
+  cards.forEach(function (c) { io.observe(c); });
 }
 
 function selectEquipmentAndQuote(key) {
