@@ -17,12 +17,17 @@
   label:first-of-type{margin-top:0}
   input,select{width:100%;padding:13px;background:#0a0e16;border:1px solid rgba(255,255,255,.1);border-radius:2px;color:#eef2f8;font-family:inherit;font-size:15px}
   input:focus,select:focus{outline:none;border-color:#4b8fe2}
-  .total-row{display:flex;align-items:center;justify-content:space-between;margin-top:22px;padding-top:18px;border-top:1px solid rgba(255,255,255,.08)}
+  .total-row{display:flex;align-items:center;justify-content:space-between;margin-top:14px;padding-top:14px;border-top:1px solid rgba(255,255,255,.08)}
+  .total-row.tax-row{margin-top:10px;padding-top:0;border-top:none}
   .total-row .lbl{font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.1em;color:#a4b1c6;text-transform:uppercase}
   .total-row .val{font-size:24px;font-weight:900}
+  .tax-row .lbl,.tax-row .val{font-size:13px;font-weight:600;color:#93a0b5}
   button{width:100%;margin-top:26px;padding:16px;background:#4b8fe2;color:#0b0f18;font-weight:800;letter-spacing:.06em;font-size:14px;text-transform:uppercase;border:none;border-radius:2px;cursor:pointer}
   button:disabled{opacity:.55;cursor:not-allowed}
-  .link-box{margin-top:20px;padding:14px;background:#0a0e16;border:1px solid rgba(255,255,255,.1);border-radius:2px;font-size:13px;word-break:break-all;color:#7fb2f2;display:none}
+  .link-row{display:none;margin-top:20px;gap:10px;align-items:stretch}
+  .link-box{flex:1;padding:14px;background:#0a0e16;border:1px solid rgba(255,255,255,.1);border-radius:2px;font-size:13px;word-break:break-all;color:#7fb2f2;display:flex;align-items:center}
+  .copy-btn{width:auto;flex:none;margin-top:0;padding:0 20px;font-size:13px;white-space:nowrap;transition:background .2s,color .2s}
+  .copy-btn.copied{background:#7ec98a}
   .msg{margin-top:16px;padding:12px 14px;border-radius:2px;font-size:13.5px;display:none}
   .msg.err{background:rgba(226,75,75,.1);border:1px solid rgba(226,75,75,.35);color:#f0a9a9}
   .status-page{text-align:center;padding:60px 20px}
@@ -42,18 +47,18 @@
 
     <label for="equipment">Equipment</label>
     <select id="equipment">
-      <option value="Yale 50VX Forklift" data-rate="120">Yale 50VX Forklift — $120/day</option>
-      <option value="25 kW Generator" data-rate="65">25 kW Generator — $65/day</option>
-      <option value="Deck Trailer" data-rate="100">Deck Trailer — $100/day</option>
-      <option value="Car Hauler Trailer" data-rate="110">Car Hauler Trailer — $110/day</option>
-      <option value="Tilt Trailer" data-rate="65">Tilt Trailer — $65/day</option>
-      <option value="Utility Trailer" data-rate="70">Utility Trailer — $70/day</option>
+      <option value="Yale 50VX Forklift" data-rate="112">Yale 50VX Forklift — $112/day</option>
+      <option value="25 kW Generator" data-rate="57">25 kW Generator — $57/day</option>
+      <option value="Deck Trailer" data-rate="92">Deck Trailer — $92/day</option>
+      <option value="Car Hauler Trailer" data-rate="102">Car Hauler Trailer — $102/day</option>
+      <option value="Tilt Trailer" data-rate="57">Tilt Trailer — $57/day</option>
+      <option value="Utility Trailer" data-rate="62">Utility Trailer — $62/day</option>
     </select>
 
     <label for="days">Number of Days</label>
     <input type="number" id="days" min="1" value="1">
 
-    <label for="total">Total Price (editable — overwrite to apply a discount)</label>
+    <label for="total">Total Price, pre-tax (editable — overwrite to apply a discount)</label>
     <input type="text" id="total" inputmode="decimal">
 
     <label for="cust-name">Customer Name (optional)</label>
@@ -62,6 +67,10 @@
     <label for="cust-email">Customer Email (optional)</label>
     <input type="email" id="cust-email">
 
+    <div class="total-row tax-row">
+      <span class="lbl">Tax (10%)</span>
+      <span class="val mono" id="tax-display">$0.00</span>
+    </div>
     <div class="total-row">
       <span class="lbl">Balance Due Now</span>
       <span class="val mono" id="balance-display">$0.00</span>
@@ -69,14 +78,19 @@
 
     <button type="button" id="generate-btn">Generate Payment Link</button>
     <div class="msg err" id="error-msg"></div>
-    <div class="link-box" id="link-box"></div>
+    <div class="link-row" id="link-row">
+      <div class="link-box" id="link-box"></div>
+      <button type="button" id="copy-btn" class="copy-btn">Copy</button>
+    </div>
   </div>
 </div>
 
 <script>
+var TAX_RATE = 0.10;
 var equipSel = document.getElementById('equipment');
 var daysInput = document.getElementById('days');
 var totalInput = document.getElementById('total');
+var taxDisplay = document.getElementById('tax-display');
 var balanceDisplay = document.getElementById('balance-display');
 
 function currentRate() { return Number(equipSel.selectedOptions[0].getAttribute('data-rate')) || 0; }
@@ -85,9 +99,13 @@ function recalcTotal() {
   totalInput.value = (currentRate() * days).toFixed(2);
   syncBalance();
 }
+// cents-based rounding avoids float drift (e.g. 92*1.1 = 101.19999999999999)
+function withTax(subtotal) { return Math.round(subtotal * (1 + TAX_RATE) * 100) / 100; }
 function syncBalance() {
-  var v = Number(totalInput.value) || 0;
-  balanceDisplay.textContent = '$' + v.toFixed(2);
+  var subtotal = Number(totalInput.value) || 0;
+  var total = withTax(subtotal);
+  taxDisplay.textContent = '$' + (total - subtotal).toFixed(2);
+  balanceDisplay.textContent = '$' + total.toFixed(2);
 }
 equipSel.addEventListener('change', recalcTotal);
 daysInput.addEventListener('input', recalcTotal);
@@ -97,16 +115,19 @@ recalcTotal();
 document.getElementById('generate-btn').addEventListener('click', function () {
   var btn = this;
   var errMsg = document.getElementById('error-msg');
+  var linkRow = document.getElementById('link-row');
   var linkBox = document.getElementById('link-box');
   errMsg.style.display = 'none';
-  linkBox.style.display = 'none';
+  linkRow.style.display = 'none';
+  resetCopyBtn();
 
-  var amount = Number(totalInput.value);
-  if (!amount || amount <= 0) {
+  var subtotal = Number(totalInput.value);
+  if (!subtotal || subtotal <= 0) {
     errMsg.textContent = 'Enter a valid total price.';
     errMsg.style.display = 'block';
     return;
   }
+  var amount = withTax(subtotal); // charge includes the 10% tax
 
   btn.disabled = true;
   btn.textContent = 'Generating…';
@@ -128,7 +149,7 @@ document.getElementById('generate-btn').addEventListener('click', function () {
       btn.textContent = 'Generate Payment Link';
       if (result.url) {
         linkBox.textContent = result.url;
-        linkBox.style.display = 'block';
+        linkRow.style.display = 'flex';
       } else {
         throw new Error(result.error || 'Unable to generate link');
       }
@@ -140,6 +161,35 @@ document.getElementById('generate-btn').addEventListener('click', function () {
       errMsg.style.display = 'block';
     });
 });
+
+var copyBtn = document.getElementById('copy-btn');
+function resetCopyBtn() {
+  copyBtn.textContent = 'Copy';
+  copyBtn.classList.remove('copied');
+}
+copyBtn.addEventListener('click', function () {
+  var url = document.getElementById('link-box').textContent;
+  var onCopied = function () {
+    copyBtn.textContent = 'Copied!';
+    copyBtn.classList.add('copied');
+    setTimeout(resetCopyBtn, 1500);
+  };
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(url).then(onCopied).catch(function () { fallbackCopy(url, onCopied); });
+  } else {
+    fallbackCopy(url, onCopied);
+  }
+});
+function fallbackCopy(text, onDone) {
+  var ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.position = 'fixed';
+  ta.style.opacity = '0';
+  document.body.appendChild(ta);
+  ta.select();
+  try { document.execCommand('copy'); onDone(); } catch (e) { /* clipboard unavailable */ }
+  document.body.removeChild(ta);
+}
 
 (function checkPaidStatus() {
   var params = new URLSearchParams(window.location.search);

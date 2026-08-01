@@ -314,7 +314,7 @@ canvas[data-particles]{position:fixed;inset:0;z-index:1;pointer-events:none;opac
     <div class="hero-stats">
       <div><div class="stat-num" data-count="6">0</div><div class="stat-label">Units in Fleet</div></div>
       <div><div class="stat-num">24/7</div><div class="stat-label">Online Booking</div></div>
-      <div><div style="display:flex;align-items:baseline"><span class="stat-num">$</span><span class="stat-num" data-count="65">0</span></div><div class="stat-label">Daily Rates From</div></div>
+      <div><div style="display:flex;align-items:baseline"><span class="stat-num">$</span><span class="stat-num" data-count="57">0</span></div><div class="stat-label">Daily Rates From</div></div>
       <div style="display:flex;align-items:center;gap:11px"><span class="dot-live"></span><span class="mono" style="font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--text-secondary)">Available Now</span></div>
     </div>
   </section>
@@ -400,12 +400,12 @@ canvas[data-particles]{position:fixed;inset:0;z-index:1;pointer-events:none;opac
             <label>Equipment *</label>
             <select required id="booking-equipment" name="equipment">
               <option value="">Select equipment…</option>
-              <option value="Yale 50VX Forklift">Yale 50VX Forklift — $120/day</option>
-              <option value="25 kW Generator">25 kW Generator — $65/day</option>
-              <option value="Deck Trailer">Equipment Trailer 14–17 ft — $100/day</option>
-              <option value="Car Hauler Trailer">Car Hauler 102×20 ft — $110/day</option>
-              <option value="Tilt Trailer">Steel Deck Tilt Trailer 10 ft — $65/day</option>
-              <option value="Utility Trailer">Utility Trailer 16 ft — $70/day</option>
+              <option value="Yale 50VX Forklift">Yale 50VX Forklift — $112/day</option>
+              <option value="25 kW Generator">25 kW Generator — $57/day</option>
+              <option value="Deck Trailer">Equipment Trailer 14–17 ft — $92/day</option>
+              <option value="Car Hauler Trailer">Car Hauler 102×20 ft — $102/day</option>
+              <option value="Tilt Trailer">Steel Deck Tilt Trailer 10 ft — $57/day</option>
+              <option value="Utility Trailer">Utility Trailer 16 ft — $62/day</option>
             </select>
           </div>
           <div class="field">
@@ -587,21 +587,21 @@ canvas[data-particles]{position:fixed;inset:0;z-index:1;pointer-events:none;opac
    Equipment rates — kept in sync manually with collect-balance.html
    ========================================================= */
 var equipmentRates = {
-  'Yale 50VX Forklift': 120,
-  '25 kW Generator': 65,
-  'Deck Trailer': 100,
-  'Car Hauler Trailer': 110,
-  'Tilt Trailer': 65,
-  'Utility Trailer': 70
+  'Yale 50VX Forklift': 112,
+  '25 kW Generator': 57,
+  'Deck Trailer': 92,
+  'Car Hauler Trailer': 102,
+  'Tilt Trailer': 57,
+  'Utility Trailer': 62
 };
 
 var FLEET = [
-  { key: 'Yale 50VX Forklift', imgs: ['yale-forklift.jpg'], name: 'Yale 50VX Forklift', spec: '4,800 lb capacity · Cushion tires', price: 120 },
-  { key: '25 kW Generator', imgs: ['generator-25kw.jpg','generator-25kw-2.jpg'], name: '25 kW Generator', spec: 'Reliable power for remote & oilfield sites', price: 65 },
-  { key: 'Deck Trailer', imgs: ['deck-trailer.jpg'], fit: 'cover', name: 'Equipment Trailer — 14–17 ft', spec: '74" wide · Steel deck · 2×6k axles · 10k GVWR', price: 100 },
-  { key: 'Car Hauler Trailer', imgs: ['car-hauler-1.jpg','car-hauler-2.jpg','car-hauler-3.jpg','car-hauler-thumb.jpg'], name: 'Car Hauler — 102×20 ft', spec: '102" wide · 14k GVWR · 13,500 lb wireless winch', price: 110 },
-  { key: 'Tilt Trailer', imgs: ['tilt-trailer-1.jpg','tilt-trailer-thumb.jpg'], name: 'Steel Deck Tilt Trailer — 10 ft', spec: 'Hydraulic damper for smooth loading', price: 65 },
-  { key: 'Utility Trailer', imgs: ['utility-trailer.jpg'], name: 'Utility Trailer — 16 ft × 82"', spec: 'Tandem axle · Wood deck · Rear gate', price: 70 }
+  { key: 'Yale 50VX Forklift', imgs: ['yale-forklift.jpg'], name: 'Yale 50VX Forklift', spec: '4,800 lb capacity · Cushion tires', price: 112 },
+  { key: '25 kW Generator', imgs: ['generator-25kw.jpg','generator-25kw-2.jpg'], name: '25 kW Generator', spec: 'Reliable power for remote & oilfield sites', price: 57 },
+  { key: 'Deck Trailer', imgs: ['deck-trailer.jpg'], fit: 'cover', name: 'Equipment Trailer — 14–17 ft', spec: '74" wide · Steel deck · 2×6k axles · 10k GVWR', price: 92 },
+  { key: 'Car Hauler Trailer', imgs: ['car-hauler-1.jpg','car-hauler-2.jpg','car-hauler-3.jpg','car-hauler-thumb.jpg'], name: 'Car Hauler — 102×20 ft', spec: '102" wide · 14k GVWR · 13,500 lb wireless winch', price: 102 },
+  { key: 'Tilt Trailer', imgs: ['tilt-trailer-1.jpg','tilt-trailer-thumb.jpg'], name: 'Steel Deck Tilt Trailer — 10 ft', spec: 'Hydraulic damper for smooth loading', price: 57 },
+  { key: 'Utility Trailer', imgs: ['utility-trailer.jpg'], name: 'Utility Trailer — 16 ft × 82"', spec: 'Tandem axle · Wood deck · Rear gate', price: 62 }
 ];
 
 var RENTAL_TERMS = [
