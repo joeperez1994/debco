@@ -436,8 +436,6 @@ canvas[data-particles]{position:fixed;inset:0;z-index:1;pointer-events:none;opac
           <div class="field"><label>ZIP *</label><input required name="zip" id="rf-zip"></div>
           <div class="field"><label>Driver's License # *</label><input required name="dl_number" id="rf-dl-number"></div>
           <div class="field"><label>DL State *</label><input required name="dl_state" id="rf-dl-state" value="TX"></div>
-          <div class="field"><label>Insurance Provider *</label><input required name="insurance_provider" id="rf-insurance-provider"></div>
-          <div class="field"><label>Policy # *</label><input required name="policy_number" id="rf-policy-number"></div>
         </div>
 
         <div class="booking-subhead">Upload Documents</div>
@@ -610,7 +608,7 @@ var RENTAL_TERMS = [
   { title: '3. Use of Equipment', body: 'Renter agrees to use the equipment only for its intended purpose, operate it in a safe and lawful manner, and ensure only qualified individuals operate it. Equipment may not be used in violation of any applicable law, sublet, or removed from the agreed job site/service area without DEBCO\'s prior written consent.' },
   { title: '4. Damage, Loss & Theft', body: 'Renter is responsible for the equipment from pickup until DEBCO confirms return. Renter is financially responsible for any damage beyond ordinary wear and tear, and for the full replacement value of the equipment if it is lost, stolen, or destroyed during the rental period, regardless of fault.' },
   { title: '5. Indemnification', body: 'Renter agrees to indemnify and hold harmless DEBCO Equipment & Trailer Rentals, its owners, and employees from any claims, damages, injuries, or losses arising out of Renter\'s use, misuse, or possession of the rented equipment, except to the extent caused by DEBCO\'s gross negligence.' },
-  { title: '6. Insurance', body: 'Renter represents that the insurance provider and policy number supplied in this agreement provide coverage sufficient to cover loss of or damage to the rented equipment during the rental period. DEBCO may require proof of insurance before releasing equipment.' },
+  { title: '6. Insurance', body: 'Renter represents that the proof of insurance submitted with this agreement is current and provides coverage sufficient to cover loss of or damage to the rented equipment during the rental period, and that such coverage remains in force for the full rental period. DEBCO may require additional proof of insurance before releasing equipment.' },
   { title: '7. Inspection & Acceptance', body: 'Renter has the opportunity to inspect the equipment at pickup and accepts it in its current condition unless a defect is noted with DEBCO staff at that time. Returned equipment is inspected by DEBCO staff, and any damage found will be documented and may be charged against the deposit or billed separately.' },
   { title: '8. Default & Repossession', body: 'If Renter fails to return equipment by the agreed return date, fails to make required payments, or otherwise breaches this agreement, DEBCO may repossess the equipment and Renter shall be responsible for all costs of repossession, including reasonable attorney\'s fees, to the extent permitted by law.' },
   { title: '9. E-Signature Validity', body: 'By checking the agreement box and typing your full legal name as your signature, you are electronically signing this agreement. You agree that your typed signature and the timestamp recorded at submission are a valid and binding signature under the Texas Uniform Electronic Transactions Act, equivalent to a handwritten signature.' },
@@ -843,7 +841,6 @@ function generateAgreementPDF(data) {
     ['Renter Name', data.name], ['Phone', data.phone], ['Email', data.email],
     ['Address', data.address + ', ' + data.city + ', ' + data.state + ' ' + data.zip],
     ["Driver's License #", data.dlNumber + ' (' + data.dlState + ')'],
-    ['Insurance Provider', data.insuranceProvider], ['Policy #', data.policyNumber],
     ['Equipment', data.equipment], ['Rental Dates', data.startDate + ' to ' + data.endDate],
     ['Pickup / Return Time', data.pickupTime + ' / ' + data.returnTime],
     ['Daily Rate', '$' + data.rate + '.00/day (pre-tax)'], ['Late Fee', '$' + data.rate + '.00/day'],
@@ -963,8 +960,6 @@ function wireBookingForm() {
       zip: document.getElementById('rf-zip').value,
       dlNumber: document.getElementById('rf-dl-number').value,
       dlState: document.getElementById('rf-dl-state').value,
-      insuranceProvider: document.getElementById('rf-insurance-provider').value,
-      policyNumber: document.getElementById('rf-policy-number').value,
       pickupTime: document.getElementById('pickup-time').value,
       returnTime: document.getElementById('return-time').value,
       equipment: equipSel.value,
