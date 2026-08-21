@@ -374,12 +374,12 @@ canvas[data-particles]{position:fixed;inset:0;z-index:1;pointer-events:none;opac
         <div class="eyebrow">03 — About Us</div>
         <h2 class="h2" style="font-size:clamp(40px,5.5vw,76px);line-height:.92;margin-bottom:28px">Built on<br>the Basin</h2>
         <p>We specialize in equipment and trailer rentals for construction, commercial, and personal projects across the Permian Basin. Our fleet is well-maintained, our pricing is straightforward, and our team picks up the phone.</p>
-        <p>When your job depends on the right equipment showing up on time, <strong style="color:var(--text);font-weight:700">DEBCO delivers.</strong> Locally owned and operated — just equipment ready to work.</p>
+        <p>When you need the right equipment on time, <strong style="color:var(--text);font-weight:700">DEBCO delivers.</strong> Locally owned and operated — just dependable equipment, whatever you need it for.</p>
       </div>
       <div class="about-img" data-reveal data-parallax>
         <img src="assets/car-hauler-1.jpg" alt="DEBCO car hauler trailer">
         <div class="shade"></div>
-        <div class="stamp mono">5816 WEST CR 123 · YARD 12 · MIDLAND, TX</div>
+        <div class="stamp mono">MIDLAND, TX</div>
       </div>
     </div>
   </section>
@@ -601,11 +601,11 @@ var FLEET = [
   { key: 'Deck Trailer', imgs: ['deck-trailer.jpg'], fit: 'cover', name: 'Equipment Trailer — 14–17 ft', spec: '74" wide · Steel deck · 2×6k axles · 10k GVWR', price: 92 },
   { key: 'Car Hauler Trailer', imgs: ['car-hauler-1.jpg','car-hauler-2.jpg','car-hauler-3.jpg','car-hauler-thumb.jpg'], name: 'Car Hauler — 102×20 ft', spec: '102" wide · 14k GVWR · 13,500 lb wireless winch', price: 102 },
   { key: 'Tilt Trailer', imgs: ['tilt-trailer-1.jpg','tilt-trailer-thumb.jpg'], name: 'Steel Deck Tilt Trailer — 10 ft', spec: 'Hydraulic damper for smooth loading', price: 57 },
-  { key: 'Utility Trailer', imgs: ['utility-trailer.jpg'], name: 'Utility Trailer — 16 ft × 82"', spec: 'Tandem axle · Wood deck · Rear gate', price: 62 }
+  { key: 'Utility Trailer', imgs: ['utility-trailer.jpg','utility-trailer-2.webp'], name: 'Utility Trailer — 16 ft × 82"', spec: 'Tandem axle · Wood deck · Rear gate', price: 62 }
 ];
 
 var RENTAL_TERMS = [
-  { title: '1. Rental Period & Return', body: 'The rental period begins at the agreed pickup date/time and ends at the agreed return date/time selected during booking. Equipment must be returned to DEBCO\'s yard at 5816 West CR 123, Yard 12, Midland, TX by the scheduled return time in the same condition it was received, ordinary wear excepted. Late returns are billed an additional day at the daily rate shown above for each day or partial day beyond the scheduled return time.' },
+  { title: '1. Rental Period & Return', body: 'The rental period begins at the agreed pickup date/time and ends at the agreed return date/time selected during booking. Equipment must be returned to DEBCO\'s yard in Midland, TX — at the location confirmed with you at pickup — by the scheduled return time in the same condition it was received, ordinary wear excepted. Late returns are billed an additional day at the daily rate shown above for each day or partial day beyond the scheduled return time.' },
   { title: '2. Payment & $50 Deposit', body: 'A refundable $50 deposit authorization is required to hold a reservation and is collected via the "Pay $50 Deposit Now" link after this agreement is signed. This is an authorization hold on your card, not an immediate charge. The remaining rental balance is due at pickup or return and is collected separately by DEBCO staff. Applicable sales tax of 10% is added to the rental balance; the daily rates shown are pre-tax. The deposit is released after equipment is returned in acceptable condition, or applied toward repair/replacement costs if damage, loss, or missing items are found at return.' },
   { title: '3. Use of Equipment', body: 'Renter agrees to use the equipment only for its intended purpose, operate it in a safe and lawful manner, and ensure only qualified individuals operate it. Equipment may not be used in violation of any applicable law, sublet, or removed from the agreed job site/service area without DEBCO\'s prior written consent.' },
   { title: '4. Damage, Loss & Theft', body: 'Renter is responsible for the equipment from pickup until DEBCO confirms return. Renter is financially responsible for any damage beyond ordinary wear and tear, and for the full replacement value of the equipment if it is lost, stolen, or destroyed during the rental period, regardless of fault.' },
@@ -622,7 +622,7 @@ var FAQS = [
   { q: "What do I need to rent?", a: "A valid driver's license, proof of insurance, and a $50 deposit. You can upload your license and insurance photos right on the site when you book." },
   { q: "How fast can I get equipment?", a: "Same-day when the unit is available. Check real-time availability, reserve your dates, and we'll confirm within a few hours." },
   { q: "Can I sign the agreement online?", a: "Yes. The entire rental agreement is signed digitally on this site — you get an instant PDF copy, and so do we. No printing, scanning, or office visit." },
-  { q: "Where are you located?", a: "5816 West CR 123, Yard 12, Midland, TX. We serve the Permian Basin and surrounding region." },
+  { q: "Where are you located?", a: "Midland, TX. We serve the Permian Basin and surrounding region — give us a call and we'll get you the pickup location." },
   { q: "How is pricing handled?", a: "Straightforward daily rates listed on each unit. Rates shown are pre-tax; 10% sales tax is added to your rental balance. Final amount is confirmed when we call you back — reserve your dates and we'll lock them in." }
 ];
 
@@ -835,7 +835,7 @@ function generateAgreementPDF(data) {
   doc.setFont('helvetica', 'bold'); doc.setFontSize(18);
   doc.text('DEBCO Equipment & Trailer Rentals', margin, y); y += 22;
   doc.setFont('helvetica', 'normal'); doc.setFontSize(10);
-  doc.text('5816 West CR 123, Yard 12, Midland, TX · 432-556-7312 · Debco1225@gmail.com', margin, y); y += 26;
+  doc.text('Midland, TX · 432-556-7312 · Debco1225@gmail.com', margin, y); y += 26;
 
   line('RENTAL AGREEMENT', { size: 14, bold: true }); y += 6;
 
