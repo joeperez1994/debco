@@ -170,6 +170,23 @@ canvas[data-particles]{position:fixed;inset:0;z-index:1;pointer-events:none;opac
 .field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--accent)}
 .field input[type="file"]{padding:11px;font-size:13px;color:var(--text-muted)}
 .field textarea{resize:vertical}
+.field-note{margin-top:7px;font-size:12px;line-height:1.5;color:var(--text-dim)}
+/* Keep the real file inputs reachable by script but out of the layout. They
+   carry no `required` attribute — hidden required inputs can't be focused, so
+   the browser would refuse to submit with an error it can't show. Both photos
+   are validated in JS instead. */
+.upload-input{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.upload-row{display:flex;gap:10px;flex-wrap:wrap}
+.upload-btn{flex:1;min-width:130px;padding:13px 14px;background:rgba(75,143,226,.1);border:1px solid rgba(75,143,226,.35);color:var(--accent-bright);font-family:inherit;font-size:13px;font-weight:700;letter-spacing:.03em;border-radius:2px;cursor:pointer;transition:background .25s,border-color .25s}
+.upload-btn:hover{background:rgba(75,143,226,.2);border-color:var(--accent)}
+.upload-btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.upload-name{margin-top:9px;font-size:12.5px;color:var(--text-dim);word-break:break-all}
+.upload-name.has-file{color:var(--green-text)}
+.field input[readonly]{color:var(--text-muted);cursor:default;background:rgba(0,0,0,.35)}
+.return-by{display:flex;flex-wrap:wrap;align-items:baseline;gap:10px 14px;margin-top:18px;padding:16px 20px;background:rgba(75,143,226,.08);border:1px solid rgba(75,143,226,.3);border-radius:3px}
+.return-by .k{font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent-bright)}
+.return-by .v{font-size:16px;font-weight:800;color:var(--text)}
+.return-by .sub{font-size:12.5px;color:var(--text-muted)}
 .span-2{grid-column:1/-1}
 
 /* ---------- contact / quote ---------- */
@@ -340,7 +357,7 @@ canvas[data-particles]{position:fixed;inset:0;z-index:1;pointer-events:none;opac
 
   <section id="why" class="wrap" style="padding:110px 44px">
     <div class="eyebrow" data-reveal>02 — Why DEBCO</div>
-    <h2 class="h2" data-reveal style="margin-bottom:64px;max-width:820px">Built for Crews Who<br>Can't Wait Around</h2>
+    <h2 class="h2" data-reveal style="margin-bottom:64px;max-width:820px">Renting Should<br>Be This Simple</h2>
     <div class="why-grid">
       <div class="why-cell" data-reveal data-reveal-delay="0"><div class="idx mono">/01</div><h3>Local &amp; Trusted</h3><p>Trusted by crews and businesses across the Basin. Locally owned — no corporate runaround.</p></div>
       <div class="why-cell" data-reveal data-reveal-delay="90"><div class="idx mono">/02</div><h3>Well-Maintained</h3><p>Every piece of equipment is inspected and ready to work before it leaves the yard.</p></div>
@@ -402,10 +419,10 @@ canvas[data-particles]{position:fixed;inset:0;z-index:1;pointer-events:none;opac
               <option value="">Select equipment…</option>
               <option value="Yale 50VX Forklift">Yale 50VX Forklift — $112/day</option>
               <option value="25 kW Generator">25 kW Generator — $57/day</option>
-              <option value="Deck Trailer">Equipment Trailer 14–17 ft — $92/day</option>
               <option value="Car Hauler Trailer">Car Hauler 102×20 ft — $102/day</option>
               <option value="Tilt Trailer">Steel Deck Tilt Trailer 10 ft — $57/day</option>
-              <option value="Utility Trailer">Utility Trailer 16 ft — $62/day</option>
+              <option value="Utility Trailer">Utility Trailer 16 ft × 82" — $62/day</option>
+              <option value="Utility Trailer 77x14">Utility Trailer 77" × 14 ft — $68/day</option>
             </select>
           </div>
           <div class="field">
@@ -413,10 +430,13 @@ canvas[data-particles]{position:fixed;inset:0;z-index:1;pointer-events:none;opac
             <input type="time" name="pickup_time" id="pickup-time" value="08:00">
           </div>
           <div class="field">
-            <label>Return Time</label>
-            <input type="time" name="return_time" id="return-time" value="17:00">
+            <label>Return Time (24 hrs per day)</label>
+            <input type="time" name="return_time" id="return-time" value="08:00" readonly tabindex="-1">
+            <div class="field-note">Set automatically — each rental day is a full 24 hours, so equipment is due back at the same time you pick it up.</div>
           </div>
         </div>
+
+        <div class="return-by" id="return-by" style="display:none"></div>
 
         <div class="cal" id="calendar" style="margin-top:22px"></div>
         <input type="hidden" name="start_date" id="booking-start-date">
@@ -429,7 +449,6 @@ canvas[data-particles]{position:fixed;inset:0;z-index:1;pointer-events:none;opac
         <div class="booking-grid">
           <div class="field"><label>Full Name *</label><input required name="name" id="rf-name"></div>
           <div class="field"><label>Phone *</label><input required type="tel" name="phone" id="rf-phone"></div>
-          <div class="field span-2"><label>Email *</label><input required type="email" name="email" id="rf-email"></div>
           <div class="field span-2"><label>Street Address *</label><input required name="address" id="rf-address"></div>
           <div class="field"><label>City *</label><input required name="city" id="rf-city"></div>
           <div class="field"><label>State *</label><input required name="state" id="rf-state" value="TX"></div>
@@ -440,8 +459,26 @@ canvas[data-particles]{position:fixed;inset:0;z-index:1;pointer-events:none;opac
 
         <div class="booking-subhead">Upload Documents</div>
         <div class="booking-grid">
-          <div class="field"><label>Driver's License Photo *</label><input required type="file" accept="image/*" name="dl_photo" id="rf-dl-photo"></div>
-          <div class="field"><label>Proof of Insurance Photo *</label><input required type="file" accept="image/*" name="insurance_photo" id="rf-insurance-photo"></div>
+          <div class="field">
+            <label>Driver's License Photo *</label>
+            <div class="upload-row">
+              <button type="button" class="upload-btn" data-upload-cam="dl">📷 Take Photo</button>
+              <button type="button" class="upload-btn" data-upload-file="dl">Choose File</button>
+            </div>
+            <div class="upload-name" id="dl-name">No photo added yet</div>
+            <input type="file" accept="image/*" name="dl_photo" id="rf-dl-photo" class="upload-input">
+            <input type="file" accept="image/*" capture="environment" id="rf-dl-camera" class="upload-input">
+          </div>
+          <div class="field">
+            <label>Proof of Insurance Photo *</label>
+            <div class="upload-row">
+              <button type="button" class="upload-btn" data-upload-cam="insurance">📷 Take Photo</button>
+              <button type="button" class="upload-btn" data-upload-file="insurance">Choose File</button>
+            </div>
+            <div class="upload-name" id="insurance-name">No photo added yet</div>
+            <input type="file" accept="image/*" name="insurance_photo" id="rf-insurance-photo" class="upload-input">
+            <input type="file" accept="image/*" capture="environment" id="rf-insurance-camera" class="upload-input">
+          </div>
         </div>
         <input type="file" name="signed_agreement" style="display:none">
 
@@ -506,10 +543,10 @@ canvas[data-particles]{position:fixed;inset:0;z-index:1;pointer-events:none;opac
             <option value="">Select equipment…</option>
             <option value="Yale 50VX Forklift">Yale 50VX Forklift</option>
             <option value="25 kW Generator">25 kW Generator</option>
-            <option value="Deck Trailer">Deck Trailer</option>
             <option value="Car Hauler Trailer">Car Hauler Trailer</option>
             <option value="Tilt Trailer">Tilt Trailer</option>
-            <option value="Utility Trailer">Utility Trailer</option>
+            <option value="Utility Trailer">Utility Trailer — 16 ft × 82"</option>
+            <option value="Utility Trailer 77x14">Utility Trailer — 77" × 14 ft</option>
             <option value="Multiple items / Not sure">Multiple items / Not sure</option>
           </select>
         </div>
@@ -587,23 +624,23 @@ canvas[data-particles]{position:fixed;inset:0;z-index:1;pointer-events:none;opac
 var equipmentRates = {
   'Yale 50VX Forklift': 112,
   '25 kW Generator': 57,
-  'Deck Trailer': 92,
   'Car Hauler Trailer': 102,
   'Tilt Trailer': 57,
-  'Utility Trailer': 62
+  'Utility Trailer': 62,
+  'Utility Trailer 77x14': 68
 };
 
 var FLEET = [
   { key: 'Yale 50VX Forklift', imgs: ['yale-forklift.jpg'], name: 'Yale 50VX Forklift', spec: '4,800 lb capacity · Cushion tires', price: 112 },
   { key: '25 kW Generator', imgs: ['generator-25kw.jpg','generator-25kw-2.jpg'], name: '25 kW Generator', spec: 'Reliable power for remote & oilfield sites', price: 57 },
-  { key: 'Deck Trailer', imgs: ['deck-trailer.jpg'], fit: 'cover', name: 'Equipment Trailer — 14–17 ft', spec: '74" wide · Steel deck · 2×6k axles · 10k GVWR', price: 92 },
   { key: 'Car Hauler Trailer', imgs: ['car-hauler-1.jpg','car-hauler-2.jpg','car-hauler-3.jpg','car-hauler-thumb.jpg'], name: 'Car Hauler — 102×20 ft', spec: '102" wide · 14k GVWR · 13,500 lb wireless winch', price: 102 },
   { key: 'Tilt Trailer', imgs: ['tilt-trailer-1.jpg','tilt-trailer-thumb.jpg'], name: 'Steel Deck Tilt Trailer — 10 ft', spec: 'Hydraulic damper for smooth loading', price: 57 },
-  { key: 'Utility Trailer', imgs: ['utility-trailer.jpg','utility-trailer-2.webp'], name: 'Utility Trailer — 16 ft × 82"', spec: 'Tandem axle · Wood deck · Rear gate', price: 62 }
+  { key: 'Utility Trailer', imgs: ['utility-trailer-2.webp'], name: 'Utility Trailer — 16 ft × 82"', spec: 'Tandem axle · Wood deck · Rear gate', price: 62 },
+  { key: 'Utility Trailer 77x14', imgs: ['utility-trailer-77x14.jpg'], name: 'Utility Trailer — 77" × 14 ft', spec: 'Tandem axle · Wood deck · 4 ft rear gate', price: 68 }
 ];
 
 var RENTAL_TERMS = [
-  { title: '1. Rental Period & Return', body: 'The rental period begins at the agreed pickup date/time and ends at the agreed return date/time selected during booking. Equipment must be returned to DEBCO\'s yard in Midland, TX — at the location confirmed with you at pickup — by the scheduled return time in the same condition it was received, ordinary wear excepted. Late returns are billed an additional day at the daily rate shown above for each day or partial day beyond the scheduled return time.' },
+  { title: '1. Rental Period & Return', body: 'Each rental day is a full 24-hour period measured from the pickup time. Equipment picked up at 2:00 PM on a one-day rental is therefore due back at 2:00 PM the following day; a three-day rental picked up at 2:00 PM is due back at 2:00 PM on the third day. The exact due-back date and time are shown above and were set automatically from your pickup time — they are not adjustable. Equipment must be returned to DEBCO\'s yard in Midland, TX — at the location confirmed with you at pickup — by that due-back time, in the same condition it was received, ordinary wear excepted. Any return after the due-back time is billed as an additional full day at the daily rate shown above, for each day or partial day late.' },
   { title: '2. Payment & $50 Deposit', body: 'A refundable $50 deposit authorization is required to hold a reservation and is collected via the "Pay $50 Deposit Now" link after this agreement is signed. This is an authorization hold on your card, not an immediate charge. The remaining rental balance is due at pickup or return and is collected separately by DEBCO staff. Applicable sales tax of 10% is added to the rental balance; the daily rates shown are pre-tax. The deposit is released after equipment is returned in acceptable condition, or applied toward repair/replacement costs if damage, loss, or missing items are found at return.' },
   { title: '3. Use of Equipment', body: 'Renter agrees to use the equipment only for its intended purpose, operate it in a safe and lawful manner, and ensure only qualified individuals operate it. Equipment may not be used in violation of any applicable law, sublet, or removed from the agreed job site/service area without DEBCO\'s prior written consent.' },
   { title: '4. Damage, Loss & Theft', body: 'Renter is responsible for the equipment from pickup until DEBCO confirms return. Renter is financially responsible for any damage beyond ordinary wear and tear, and for the full replacement value of the equipment if it is lost, stolen, or destroyed during the rental period, regardless of fault.' },
@@ -619,6 +656,7 @@ var RENTAL_TERMS = [
 var FAQS = [
   { q: "What do I need to rent?", a: "A valid driver's license, proof of insurance, and a $50 deposit. You can upload your license and insurance photos right on the site when you book." },
   { q: "How fast can I get equipment?", a: "Same-day when the unit is available. Check real-time availability, reserve your dates, and we'll confirm within a few hours." },
+  { q: "How long is a one-day rental?", a: "Exactly 24 hours from the time you pick up. Grab a trailer at 2:00 PM and it's due back at 2:00 PM the next day — not the end of that day. Your due-back time is shown on your agreement, and returns after it are billed as another full day." },
   { q: "Can I sign the agreement online?", a: "Yes. The entire rental agreement is signed digitally on this site — you get an instant PDF copy, and so do we. No printing, scanning, or office visit." },
   { q: "Where are you located?", a: "Midland, TX. We serve the Permian Basin and surrounding region — give us a call and we'll get you the pickup location." },
   { q: "How is pricing handled?", a: "Straightforward daily rates listed on each unit. Rates shown are pre-tax; 10% sales tax is added to your rental balance. Final amount is confirmed when we call you back — reserve your dates and we'll lock them in." }
@@ -779,7 +817,43 @@ function renderAgreementTerms() {
   if (modalBody) modalBody.innerHTML = html;
 }
 
+/* =========================================================
+   Rental duration — every rental day is a full 24 hours, so the
+   equipment is due back at the same clock time it was picked up.
+   ========================================================= */
+function rentalDays() {
+  var s = document.getElementById('booking-start-date').value;
+  var e = document.getElementById('booking-end-date').value;
+  if (!s || !e) return 0;
+  return Math.round((new Date(e + 'T00:00:00') - new Date(s + 'T00:00:00')) / 86400000);
+}
+
+function syncReturnTime() {
+  // Return time is never chosen by the renter — it mirrors pickup.
+  document.getElementById('return-time').value = document.getElementById('pickup-time').value;
+}
+
+function formatDeadline(iso, time) {
+  var d = new Date(iso + 'T' + time);
+  return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }) +
+         ' at ' + d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+}
+
+function updateReturnBy() {
+  var box = document.getElementById('return-by');
+  var days = rentalDays();
+  var end = document.getElementById('booking-end-date').value;
+  var time = document.getElementById('pickup-time').value;
+  if (days < 1 || !end || !time) { box.style.display = 'none'; return; }
+  box.style.display = 'flex';
+  box.innerHTML =
+    '<span class="k mono">Return by</span>' +
+    '<span class="v">' + esc(formatDeadline(end, time)) + '</span>' +
+    '<span class="sub">' + days + (days === 1 ? ' day' : ' days') + ' · ' + (days * 24) + ' hours total</span>';
+}
+
 function updateAgreementPreview() {
+  syncReturnTime();
   var equip = document.getElementById('booking-equipment').value;
   var rate = equipmentRates[equip] || 0;
   document.getElementById('booking-daily-rate').value = rate;
@@ -787,10 +861,14 @@ function updateAgreementPreview() {
   var name = document.getElementById('rf-name').value || '—';
   var start = document.getElementById('booking-start-date').value || '—';
   var end = document.getElementById('booking-end-date').value || '—';
+  var days = rentalDays();
+  var time = document.getElementById('pickup-time').value;
   el.innerHTML =
     '<div><div class="k mono">Renter</div><div class="v">' + esc(name) + '</div></div>' +
     '<div><div class="k mono">Equipment</div><div class="v">' + esc(equip || '—') + '</div></div>' +
     '<div><div class="k mono">Dates</div><div class="v">' + esc(start) + ' – ' + esc(end) + '</div></div>' +
+    '<div><div class="k mono">Rental Length</div><div class="v">' + (days > 0 ? days + (days === 1 ? ' day (24 hrs)' : ' days (' + days * 24 + ' hrs)') : '—') + '</div></div>' +
+    '<div><div class="k mono">Due Back</div><div class="v">' + (days > 0 ? esc(formatDeadline(end, time)) : '—') + '</div></div>' +
     '<div><div class="k mono">Daily Rate</div><div class="v">$' + rate + '/day + tax</div></div>' +
     '<div><div class="k mono">Late Fee</div><div class="v">$' + rate + '/day</div></div>' +
     '<div><div class="k mono">Sales Tax</div><div class="v">10%</div></div>' +
@@ -806,6 +884,7 @@ function updateAgreementPreview() {
   } else {
     summary.style.display = 'none';
   }
+  updateReturnBy();
 }
 
 function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return { '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]; }); }
@@ -838,11 +917,13 @@ function generateAgreementPDF(data) {
   line('RENTAL AGREEMENT', { size: 14, bold: true }); y += 6;
 
   var rows = [
-    ['Renter Name', data.name], ['Phone', data.phone], ['Email', data.email],
+    ['Renter Name', data.name], ['Phone', data.phone],
     ['Address', data.address + ', ' + data.city + ', ' + data.state + ' ' + data.zip],
     ["Driver's License #", data.dlNumber + ' (' + data.dlState + ')'],
     ['Equipment', data.equipment], ['Rental Dates', data.startDate + ' to ' + data.endDate],
-    ['Pickup / Return Time', data.pickupTime + ' / ' + data.returnTime],
+    ['Rental Length', data.days + (data.days === 1 ? ' day (24 hours)' : ' days (' + data.days * 24 + ' hours)')],
+    ['Pickup Time', data.pickupTime],
+    ['DUE BACK', data.dueBack],
     ['Daily Rate', '$' + data.rate + '.00/day (pre-tax)'], ['Late Fee', '$' + data.rate + '.00/day'],
     ['Sales Tax', '10% added to rental balance'],
     ['Deposit', '$50.00 (authorization hold)']
@@ -933,11 +1014,80 @@ function showDepositBanner() {
 /* =========================================================
    Booking form submit
    ========================================================= */
+/* =========================================================
+   Document photos. Each upload has two inputs: a plain file picker and a
+   second one with capture="environment". Android file pickers often open
+   straight to the gallery with no obvious way to the camera, so the camera
+   gets its own button rather than relying on the picker to offer one. The
+   named input is the one that submits; a camera shot is copied into it.
+   ========================================================= */
+var PHOTO_FIELDS = {
+  dl: { input: 'rf-dl-photo', camera: 'rf-dl-camera', label: 'dl-name', field: 'dl_photo' },
+  insurance: { input: 'rf-insurance-photo', camera: 'rf-insurance-camera', label: 'insurance-name', field: 'insurance_photo' }
+};
+
+function wirePhotoUploads() {
+  Object.keys(PHOTO_FIELDS).forEach(function (key) {
+    var cfg = PHOTO_FIELDS[key];
+    var target = document.getElementById(cfg.input);
+    var cam = document.getElementById(cfg.camera);
+    var label = document.getElementById(cfg.label);
+    if (!target || !cam || !label) return;
+
+    function showName() {
+      var f = (target.files && target.files[0]) || (cam.files && cam.files[0]);
+      label.textContent = f ? '✓ ' + f.name : 'No photo added yet';
+      label.classList.toggle('has-file', !!f);
+    }
+
+    document.querySelector('[data-upload-cam="' + key + '"]').addEventListener('click', function () { cam.click(); });
+    document.querySelector('[data-upload-file="' + key + '"]').addEventListener('click', function () { target.click(); });
+
+    cam.addEventListener('change', function () {
+      if (!cam.files.length) return;
+      var copied = false;
+      try {
+        var dt = new DataTransfer();
+        dt.items.add(cam.files[0]);
+        target.files = dt.files;
+        copied = target.files.length > 0;
+      } catch (err) {
+        copied = false;
+      }
+      if (!copied) {
+        // Very old browser without DataTransfer: let the camera input submit
+        // under the canonical field name instead.
+        target.removeAttribute('name');
+        cam.setAttribute('name', cfg.field);
+      }
+      showName();
+    });
+
+    target.addEventListener('change', function () {
+      if (target.files.length) {
+        cam.removeAttribute('name');
+        target.setAttribute('name', cfg.field);
+      }
+      showName();
+    });
+  });
+}
+
+function photoChosen(key) {
+  var cfg = PHOTO_FIELDS[key];
+  return [cfg.input, cfg.camera].some(function (id) {
+    var el = document.getElementById(id);
+    return el && el.files && el.files.length > 0;
+  });
+}
+
 function wireBookingForm() {
   var form = document.getElementById('booking-form');
   var equipSel = document.getElementById('booking-equipment');
   equipSel.addEventListener('change', updateAgreementPreview);
   document.getElementById('rf-name').addEventListener('input', updateAgreementPreview);
+  document.getElementById('pickup-time').addEventListener('input', updateAgreementPreview);
+  syncReturnTime();
   var lastEquipmentForDeposit = null;
 
   form.addEventListener('submit', function (e) {
@@ -950,10 +1100,22 @@ function wireBookingForm() {
       return;
     }
 
+    var days = rentalDays();
+    if (days < 1) {
+      msg.innerHTML = '<div class="form-msg err">A rental is a minimum of one full day. Pick a return date at least one day after your pickup date.</div>';
+      return;
+    }
+
+    if (!photoChosen('dl') || !photoChosen('insurance')) {
+      msg.innerHTML = '<div class="form-msg err">Please add a photo of your driver\'s license and your proof of insurance.</div>';
+      return;
+    }
+
+    syncReturnTime();
+
     var data = {
       name: document.getElementById('rf-name').value,
       phone: document.getElementById('rf-phone').value,
-      email: document.getElementById('rf-email').value,
       address: document.getElementById('rf-address').value,
       city: document.getElementById('rf-city').value,
       state: document.getElementById('rf-state').value,
@@ -965,6 +1127,8 @@ function wireBookingForm() {
       equipment: equipSel.value,
       startDate: calState.start,
       endDate: calState.end,
+      days: days,
+      dueBack: formatDeadline(calState.end, document.getElementById('pickup-time').value),
       rate: equipmentRates[equipSel.value] || 0,
       signature: document.getElementById('agreement-signature').value,
       timestamp: new Date().toLocaleString('en-US')
@@ -1017,7 +1181,9 @@ function payDeposit(data) {
   fetch('/.netlify/functions/create-checkout-session', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ name: data.name, equipment: data.equipment, email: data.email, siteUrl: window.location.origin })
+    // No email is collected on the form any more; Stripe Checkout asks the
+    // customer for one itself and sends the receipt there.
+    body: JSON.stringify({ name: data.name, equipment: data.equipment, siteUrl: window.location.origin })
   })
     .then(function (r) { return r.json(); })
     .then(function (result) {
@@ -1217,6 +1383,7 @@ document.addEventListener('DOMContentLoaded', function () {
   navToggle();
   parallax();
   wireBookingForm();
+  wirePhotoUploads();
   wireQuoteForm();
   wireModals();
   showDepositBanner();
