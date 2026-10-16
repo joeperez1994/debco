@@ -240,21 +240,6 @@ canvas[data-particles]{position:fixed;inset:0;z-index:1;pointer-events:none;opac
 .equip-summary .k{font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--text-dim);margin-bottom:4px}
 .equip-summary .v{color:var(--text);font-weight:700}
 
-/* calendar */
-.cal{background:rgba(0,0,0,.25);border:1px solid var(--hairline);border-radius:3px;padding:22px;margin-top:8px}
-.cal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
-.cal-head button{background:none;border:1px solid var(--hairline-strong);color:var(--text);width:34px;height:34px;border-radius:2px;cursor:pointer;font-size:16px}
-.cal-head button:hover{border-color:var(--accent);color:var(--accent-bright)}
-.cal-title{font-family:'IBM Plex Mono',monospace;font-size:13px;letter-spacing:.14em;text-transform:uppercase}
-.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
-.cal-dow{text-align:center;font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.1em;color:var(--text-dim);padding:6px 0}
-.cal-day{aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-size:13px;border-radius:2px;cursor:pointer;color:var(--text-secondary);background:rgba(255,255,255,.02);transition:background .2s,color .2s}
-.cal-day:hover:not(.disabled):not(.empty){background:rgba(75,143,226,.18);color:var(--text)}
-.cal-day.empty{cursor:default;background:transparent}
-.cal-day.disabled{cursor:not-allowed;color:var(--text-dim);opacity:.35}
-.cal-day.in-range{background:rgba(75,143,226,.14);color:var(--text)}
-.cal-day.selected{background:var(--accent);color:#0b0f18;font-weight:700}
-.cal-note{margin-top:14px;font-size:12.5px;color:var(--text-dim)}
 
 .agreement-box{background:var(--input-bg);border:1px solid var(--hairline-strong);border-radius:3px;padding:22px;max-height:320px;overflow-y:auto;font-size:13px;line-height:1.65;color:var(--text-muted)}
 .agreement-box h4{color:var(--text);font-size:13.5px;text-transform:uppercase;letter-spacing:.04em;margin:16px 0 6px}
@@ -426,6 +411,14 @@ canvas[data-particles]{position:fixed;inset:0;z-index:1;pointer-events:none;opac
             </select>
           </div>
           <div class="field">
+            <label>Pickup Date *</label>
+            <input type="date" required name="start_date" id="booking-start-date">
+          </div>
+          <div class="field">
+            <label>Return Date *</label>
+            <input type="date" required name="end_date" id="booking-end-date">
+          </div>
+          <div class="field">
             <label>Pickup Time</label>
             <input type="time" name="pickup_time" id="pickup-time" value="08:00">
           </div>
@@ -437,10 +430,8 @@ canvas[data-particles]{position:fixed;inset:0;z-index:1;pointer-events:none;opac
         </div>
 
         <div class="return-by" id="return-by" style="display:none"></div>
+        <div class="form-msg err" id="date-error" style="display:none"></div>
 
-        <div class="cal" id="calendar" style="margin-top:22px"></div>
-        <input type="hidden" name="start_date" id="booking-start-date">
-        <input type="hidden" name="end_date" id="booking-end-date">
         <input type="hidden" name="daily_rate" id="booking-daily-rate">
 
         <div class="equip-summary" id="equip-summary" style="display:none"></div>
@@ -945,56 +936,58 @@ function generateAgreementPDF(data) {
 }
 
 /* =========================================================
-   Calendar
+   Rental dates. Two plain date fields rather than a click-twice range
+   calendar — renters could not tell they were meant to click a "from"
+   day and then a "to" day. A native date input opens the phone's own
+   picker, which needs no explaining.
    ========================================================= */
-var calState = { view: new Date(), start: null, end: null };
-function renderCalendar() {
-  var el = document.getElementById('calendar');
-  var y = calState.view.getFullYear(), m = calState.view.getMonth();
-  var first = new Date(y, m, 1), startDow = first.getDay();
-  var daysInMonth = new Date(y, m + 1, 0).getDate();
-  var monthName = calState.view.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
-  var today = new Date(); today.setHours(0, 0, 0, 0);
-
-  var html = '<div class="cal-head"><button type="button" id="cal-prev">‹</button><div class="cal-title mono">' + monthName + '</div><button type="button" id="cal-next">›</button></div>';
-  html += '<div class="cal-grid">';
-  ['S','M','T','W','T','F','S'].forEach(function (d) { html += '<div class="cal-dow">' + d + '</div>'; });
-  for (var i = 0; i < startDow; i++) html += '<div class="cal-day empty"></div>';
-  for (var d = 1; d <= daysInMonth; d++) {
-    var date = new Date(y, m, d);
-    var iso = toISO(date);
-    var disabled = date < today || isBooked(iso);
-    var cls = 'cal-day';
-    if (disabled) cls += ' disabled';
-    if (calState.start && iso === calState.start) cls += ' selected';
-    if (calState.end && iso === calState.end) cls += ' selected';
-    if (calState.start && calState.end && iso > calState.start && iso < calState.end) cls += ' in-range';
-    html += '<div class="' + cls + '" data-date="' + iso + '">' + d + '</div>';
-  }
-  html += '</div><div class="cal-note">Select a start date, then an end date. Availability shown reflects confirmed bookings.</div>';
-  el.innerHTML = html;
-
-  el.querySelector('#cal-prev').addEventListener('click', function () { calState.view.setMonth(calState.view.getMonth() - 1); renderCalendar(); });
-  el.querySelector('#cal-next').addEventListener('click', function () { calState.view.setMonth(calState.view.getMonth() + 1); renderCalendar(); });
-  el.querySelectorAll('.cal-day[data-date]').forEach(function (dEl) {
-    dEl.addEventListener('click', function () { selectDate(dEl.getAttribute('data-date')); });
-  });
-}
 function toISO(d) { return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
-function selectDate(iso) {
-  if (!calState.start || (calState.start && calState.end)) {
-    calState.start = iso; calState.end = null;
-  } else if (iso < calState.start) {
-    calState.start = iso;
-  } else {
-    calState.end = iso;
-  }
-  document.getElementById('booking-start-date').value = calState.start || '';
-  document.getElementById('booking-end-date').value = calState.end || '';
-  renderCalendar();
-  updateAgreementPreview();
+
+function addDaysISO(iso, n) {
+  var d = new Date(iso + 'T00:00:00');
+  d.setDate(d.getDate() + n);
+  return toISO(d);
 }
-function changeMonth(delta) { calState.view.setMonth(calState.view.getMonth() + delta); renderCalendar(); }
+
+function initDateFields() {
+  var startEl = document.getElementById('booking-start-date');
+  var endEl = document.getElementById('booking-end-date');
+  var today = toISO(new Date());
+
+  // Nothing in the past, and the return date must be after the pickup date.
+  startEl.min = today;
+  endEl.min = addDaysISO(today, 1);
+
+  function onChange() {
+    if (startEl.value) {
+      endEl.min = addDaysISO(startEl.value, 1);
+      // Drag the return date along if it is now on or before pickup.
+      if (endEl.value && endEl.value <= startEl.value) endEl.value = addDaysISO(startEl.value, 1);
+    }
+    validateDates();
+    updateAgreementPreview();
+  }
+  startEl.addEventListener('change', onChange);
+  endEl.addEventListener('change', onChange);
+}
+
+/* Returns '' when the dates are usable, otherwise the reason. */
+function dateProblem() {
+  var s = document.getElementById('booking-start-date').value;
+  var e = document.getElementById('booking-end-date').value;
+  if (!s || !e) return '';
+  if (e <= s) return 'Your return date has to be at least one day after your pickup date — a rental is a minimum of one full day.';
+  if (isBooked(s) || isBooked(e)) return 'One of those dates is already booked. Please pick different dates or call us at 432·556·7312.';
+  return '';
+}
+
+function validateDates() {
+  var box = document.getElementById('date-error');
+  var problem = dateProblem();
+  box.textContent = problem;
+  box.style.display = problem ? 'block' : 'none';
+  return !problem;
+}
 
 /* =========================================================
    Deposit banner (?deposit=success / ?deposit=cancelled)
@@ -1095,8 +1088,16 @@ function wireBookingForm() {
     var msg = document.getElementById('booking-msg');
     msg.innerHTML = '';
 
-    if (!calState.start || !calState.end) {
-      msg.innerHTML = '<div class="form-msg err">Please select a start and end date on the calendar.</div>';
+    var startDate = document.getElementById('booking-start-date').value;
+    var endDate = document.getElementById('booking-end-date').value;
+
+    if (!startDate || !endDate) {
+      msg.innerHTML = '<div class="form-msg err">Please choose a pickup date and a return date.</div>';
+      return;
+    }
+
+    if (!validateDates()) {
+      msg.innerHTML = '<div class="form-msg err">' + esc(dateProblem()) + '</div>';
       return;
     }
 
@@ -1125,10 +1126,10 @@ function wireBookingForm() {
       pickupTime: document.getElementById('pickup-time').value,
       returnTime: document.getElementById('return-time').value,
       equipment: equipSel.value,
-      startDate: calState.start,
-      endDate: calState.end,
+      startDate: startDate,
+      endDate: endDate,
       days: days,
-      dueBack: formatDeadline(calState.end, document.getElementById('pickup-time').value),
+      dueBack: formatDeadline(endDate, document.getElementById('pickup-time').value),
       rate: equipmentRates[equipSel.value] || 0,
       signature: document.getElementById('agreement-signature').value,
       timestamp: new Date().toLocaleString('en-US')
@@ -1373,7 +1374,7 @@ document.addEventListener('DOMContentLoaded', function () {
   buildFleet();
   buildFaq();
   renderAgreementTerms();
-  renderCalendar();
+  initDateFields();
   updateAgreementPreview();
   grain();
   particles();
