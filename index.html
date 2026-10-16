@@ -907,6 +907,34 @@ function addDaysISO(iso, n) {
   return toISO(d);
 }
 
+/* Android Chrome only opens the date/time picker when the small icon at the
+   edge of the field is tapped — tapping the rest of the field just focuses
+   it, so renters conclude it is broken. iOS Safari opens the picker from a
+   tap anywhere, which is why this only shows up on Android. showPicker()
+   opens it wherever they tap. It needs a user gesture and throws without
+   one, and it is a no-op when the picker is already open (iOS), so the
+   try/catch covers both. Older browsers without it keep the icon-tap
+   behaviour they had before. */
+function openPickerOnTap(el) {
+  if (!el) return;
+  function show() {
+    if (typeof el.showPicker !== 'function') return;
+    try { el.showPicker(); } catch (err) { /* no user gesture, or already open */ }
+  }
+  el.addEventListener('click', show);
+  el.addEventListener('focus', show);
+}
+
+/* Some in-app browsers (Facebook, Messenger) and very old Android fall back
+   to a plain text box for type="date". Detect that and tell the renter what
+   format to type instead of leaving them an unlabelled empty field. */
+function dateInputSupported() {
+  var probe = document.createElement('input');
+  probe.setAttribute('type', 'date');
+  probe.value = 'definitely-not-a-date';
+  return probe.value !== 'definitely-not-a-date';
+}
+
 function initDateFields() {
   var startEl = document.getElementById('booking-start-date');
   var endEl = document.getElementById('booking-end-date');
@@ -916,7 +944,22 @@ function initDateFields() {
   startEl.min = today;
   endEl.min = addDaysISO(today, 1);
 
-  function onChange() {
+  openPickerOnTap(startEl);
+  openPickerOnTap(endEl);
+  openPickerOnTap(document.getElementById('pickup-time'));
+
+  if (!dateInputSupported()) {
+    [startEl, endEl].forEach(function (el) {
+      el.setAttribute('placeholder', 'YYYY-MM-DD');
+      el.setAttribute('pattern', '\\d{4}-\\d{2}-\\d{2}');
+    });
+  }
+
+  // `change` is the only place a value is rewritten. iOS fires `input`
+  // continuously while the wheel spins, so correcting there would yank the
+  // date out from under someone mid-scroll; `input` only refreshes the
+  // read-only preview.
+  function onCommit() {
     if (startEl.value) {
       endEl.min = addDaysISO(startEl.value, 1);
       // Drag the return date along if it is now on or before pickup.
@@ -925,8 +968,14 @@ function initDateFields() {
     validateDates();
     updateAgreementPreview();
   }
-  startEl.addEventListener('change', onChange);
-  endEl.addEventListener('change', onChange);
+  function onScrub() {
+    validateDates();
+    updateAgreementPreview();
+  }
+  startEl.addEventListener('change', onCommit);
+  endEl.addEventListener('change', onCommit);
+  startEl.addEventListener('input', onScrub);
+  endEl.addEventListener('input', onScrub);
 }
 
 /* Returns '' when the dates are usable, otherwise the reason. */
