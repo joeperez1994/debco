@@ -189,13 +189,7 @@ canvas[data-particles]{position:fixed;inset:0;z-index:1;pointer-events:none;opac
 .return-by .sub{font-size:12.5px;color:var(--text-muted)}
 .span-2{grid-column:1/-1}
 
-/* ---------- contact / quote ---------- */
-.contact-grid{max-width:1400px;margin:0 auto;display:grid;grid-template-columns:1fr 1.1fr;gap:64px}
-.contact-grid p{font-size:16px;line-height:1.7;color:var(--text-secondary);max-width:440px;margin-bottom:44px}
-.contact-rows{display:flex;flex-direction:column;gap:26px}
-.contact-row{display:flex;align-items:center;gap:18px;color:var(--text)}
-.contact-row .lbl{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.2em;color:var(--text-dim);width:96px;text-transform:uppercase;flex:none}
-.quote-form{background:var(--panel);border:1px solid var(--hairline-strong);border-radius:4px;padding:40px;display:grid;grid-template-columns:1fr 1fr;gap:18px}
+/* ---------- form messages ---------- */
 .form-msg{grid-column:1/-1;padding:16px 18px;border-radius:2px;font-size:14px;line-height:1.5}
 .form-msg.ok{background:rgba(126,201,138,.1);border:1px solid rgba(126,201,138,.35);color:var(--green-text)}
 .form-msg.err{background:rgba(226,75,75,.1);border:1px solid rgba(226,75,75,.35);color:#f0a9a9}
@@ -269,7 +263,7 @@ canvas[data-particles]{position:fixed;inset:0;z-index:1;pointer-events:none;opac
   .nav-toggle{display:block}
   .wrap,.hero,.fleet-head{padding-left:22px;padding-right:22px}
   section{padding-left:22px!important;padding-right:22px!important}
-  .about-grid,.contact-grid,.callout-grid,.booking-grid,.quote-form{grid-template-columns:1fr!important}
+  .about-grid,.callout-grid,.booking-grid{grid-template-columns:1fr!important}
   .fleet-grid{display:flex;grid-template-columns:none;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scroll-behavior:smooth;gap:16px;margin:0 -22px;padding:0 22px 6px;scrollbar-width:none}
   .fleet-grid::-webkit-scrollbar{display:none}
   .fleet-card{flex:0 0 86%;scroll-snap-align:center}
@@ -295,11 +289,10 @@ canvas[data-particles]{position:fixed;inset:0;z-index:1;pointer-events:none;opac
     <div class="nav-links" data-nav-links>
       <a href="#fleet">Fleet</a>
       <a href="#why">Why DEBCO</a>
-      <a href="#booking">Reserve</a>
       <a href="#about">About</a>
       <a href="#faq">FAQ</a>
       <a href="tel:4325567312" class="nav-phone mono">432·556·7312</a>
-      <a href="#contact" class="btn-nav">Get a Quote</a>
+      <a href="#booking" class="btn-nav">Reserve Now</a>
     </div>
   </nav>
 
@@ -311,7 +304,7 @@ canvas[data-particles]{position:fixed;inset:0;z-index:1;pointer-events:none;opac
     <p class="hero-p">Forklifts, generators, and trailers — inspected, staged, and ready to work. Book online, sign your agreement digitally, and get back to the job. No runaround.</p>
     <div class="hero-cta">
       <a href="#fleet" class="btn btn-primary">Browse the Fleet →</a>
-      <a href="#contact" class="btn btn-outline">Get a Quote</a>
+      <a href="#booking" class="btn btn-outline">Reserve Now</a>
     </div>
     <div class="hero-stats">
       <div><div class="stat-num" data-count="6">0</div><div class="stat-label">Units in Fleet</div></div>
@@ -509,46 +502,6 @@ canvas[data-particles]{position:fixed;inset:0;z-index:1;pointer-events:none;opac
     <div class="faq-list" data-faq></div>
   </section>
 
-  <section id="contact" style="position:relative;padding:120px 44px;border-top:1px solid var(--hairline)">
-    <div class="contact-grid">
-      <div data-reveal>
-        <div class="eyebrow">05 — Get in Touch</div>
-        <h2 class="h2" style="font-size:clamp(40px,5vw,72px);line-height:.92;margin-bottom:26px">Request<br>a Quote</h2>
-        <p>Tell us what you need and your dates. We'll get back within a few hours — or reach us directly. A real person always picks up.</p>
-        <div class="contact-rows">
-          <a href="tel:4325567312" class="contact-row"><span class="lbl mono">Phone</span><span class="mono" style="font-size:22px;font-weight:700">432·556·7312</span></a>
-          <a href="mailto:Debco1225@gmail.com" class="contact-row"><span class="lbl mono">Email</span><span style="font-size:18px;font-weight:600">Debco1225@gmail.com</span></a>
-          <div class="contact-row"><span class="lbl mono">Service Area</span><span style="font-size:16px;color:#c3ccd9">Permian Basin &amp; Surrounding Region</span></div>
-        </div>
-      </div>
-
-      <form data-reveal name="debco-quote" method="POST" data-netlify="true" netlify-honeypot="qb-field" class="quote-form" id="quote-form">
-        <input type="hidden" name="form-name" value="debco-quote">
-        <p style="display:none"><label>Don't fill this out: <input name="qb-field"></label></p>
-        <div class="field span-2"><label>Full Name *</label><input required name="name" id="qf-name"></div>
-        <div class="field"><label>Phone *</label><input required type="tel" name="phone" id="qf-phone"></div>
-        <div class="field"><label>Email</label><input type="email" name="email" id="qf-email"></div>
-        <div class="field span-2">
-          <label>Equipment Needed *</label>
-          <select required name="equipment" id="quote-equipment">
-            <option value="">Select equipment…</option>
-            <option value="Yale 50VX Forklift">Yale 50VX Forklift</option>
-            <option value="25 kW Generator">25 kW Generator</option>
-            <option value="Car Hauler Trailer">Car Hauler Trailer</option>
-            <option value="Tilt Trailer">Tilt Trailer</option>
-            <option value="Utility Trailer">Utility Trailer — 16 ft × 82"</option>
-            <option value="Utility Trailer 77x14">Utility Trailer — 77" × 14 ft</option>
-            <option value="Multiple items / Not sure">Multiple items / Not sure</option>
-          </select>
-        </div>
-        <div class="field"><label>Start Date</label><input type="date" name="start_date" id="qf-start"></div>
-        <div class="field"><label>End Date</label><input type="date" name="end_date" id="qf-end"></div>
-        <div class="field span-2"><label>Job Location / Details</label><textarea rows="3" name="message" id="qf-message"></textarea></div>
-        <button type="submit" class="btn btn-primary span-2" id="quote-submit">Send Quote Request</button>
-        <div id="quote-msg" class="span-2"></div>
-      </form>
-    </div>
-  </section>
 
   <footer class="site-footer">
     <div class="footer-grid">
@@ -577,11 +530,11 @@ canvas[data-particles]{position:fixed;inset:0;z-index:1;pointer-events:none;opac
     <div class="modal-box">
       <div class="modal-head"><h3>Terms of Service</h3><button class="modal-close" data-modal-close>×</button></div>
       <div class="modal-body">
-        <p>These Terms of Service govern your use of the DEBCO Equipment &amp; Trailer Rentals website and quote/reservation tools. By submitting a quote request or reservation, you confirm the information you provide is accurate and that you are authorized to enter into a rental agreement.</p>
-        <h4>Quotes &amp; Availability</h4>
-        <p>Prices shown on this site are starting daily rates and are confirmed on callback. Submitting a quote or reservation request does not guarantee equipment availability until confirmed by DEBCO staff.</p>
+        <p>These Terms of Service govern your use of the DEBCO Equipment &amp; Trailer Rentals website and reservation tools. By submitting a reservation, you confirm the information you provide is accurate and that you are authorized to enter into a rental agreement.</p>
+        <h4>Rates &amp; Availability</h4>
+        <p>Prices shown on this site are starting daily rates, are quoted pre-tax, and are confirmed by DEBCO staff. Submitting a reservation request does not guarantee equipment availability until confirmed by DEBCO staff.</p>
         <h4>Website Use</h4>
-        <p>This site and its contents are provided "as is" for the purpose of requesting quotes and reservations. Do not use this site for any unlawful purpose.</p>
+        <p>This site and its contents are provided "as is" for the purpose of making reservations. Do not use this site for any unlawful purpose.</p>
       </div>
     </div>
   </div>
@@ -590,9 +543,9 @@ canvas[data-particles]{position:fixed;inset:0;z-index:1;pointer-events:none;opac
     <div class="modal-box">
       <div class="modal-head"><h3>Privacy Policy</h3><button class="modal-close" data-modal-close>×</button></div>
       <div class="modal-body">
-        <p>DEBCO collects the information you submit through our quote and reservation forms — including name, contact details, and, for reservations, driver's license and insurance information — solely to process rental quotes, reservations, and agreements.</p>
+        <p>DEBCO collects the information you submit through our reservation form — including name, contact details, driver's license and proof of insurance — solely to process rental reservations and agreements.</p>
         <h4>How We Use Your Information</h4>
-        <p>Submissions are used to contact you about your quote or reservation, to prepare your rental agreement, and to process payment for deposits and rental balances. We do not sell your information to third parties.</p>
+        <p>Submissions are used to contact you about your reservation, to prepare your rental agreement, and to process payment for deposits and rental balances. We do not sell your information to third parties.</p>
         <h4>Payment Data</h4>
         <p>Card payments are processed directly by Stripe; DEBCO does not store your full card number.</p>
       </div>
@@ -691,7 +644,7 @@ function buildFleet() {
         '<p class="spec">' + f.spec + '</p>' +
         '<div class="fleet-foot">' +
           '<div class="fleet-price"><span class="cur">$</span><span class="num">' + f.price + '</span><span class="unit mono">/DAY</span></div>' +
-          '<button type="button" class="fleet-cta" data-fleet-quote="' + f.key + '">Get a Quote →</button>' +
+          '<button type="button" class="fleet-cta" data-fleet-reserve="' + f.key + '">Reserve →</button>' +
         '</div>' +
       '</div>';
     var cur = 0;
@@ -708,7 +661,7 @@ function buildFleet() {
       b.addEventListener('click', function (e) { e.stopPropagation(); setImg(+b.getAttribute('data-thumb')); });
     });
     card.querySelector('[data-main]').addEventListener('click', function () { openLightbox(urls, cur); });
-    card.querySelector('[data-fleet-quote]').addEventListener('click', function () { selectEquipmentAndQuote(f.key); });
+    card.querySelector('[data-fleet-reserve]').addEventListener('click', function () { selectEquipmentAndReserve(f.key); });
     grid.appendChild(card);
   });
   setupFleetCarousel(grid);
@@ -743,10 +696,15 @@ function setupFleetCarousel(grid) {
   cards.forEach(function (c) { io.observe(c); });
 }
 
-function selectEquipmentAndQuote(key) {
-  var sel = document.getElementById('quote-equipment');
-  if (sel) sel.value = key;
-  document.getElementById('contact').scrollIntoView({ behavior: 'smooth' });
+/* Fleet card CTA — drop the renter into the booking form with that unit
+   already chosen, rather than asking them to pick it again. */
+function selectEquipmentAndReserve(key) {
+  var sel = document.getElementById('booking-equipment');
+  if (sel) {
+    sel.value = key;
+    updateAgreementPreview();
+  }
+  document.getElementById('booking').scrollIntoView({ behavior: 'smooth' });
 }
 
 function openLightbox(list, start) {
@@ -1198,37 +1156,6 @@ function payDeposit(data) {
     });
 }
 
-/* =========================================================
-   Quote form submit
-   ========================================================= */
-function wireQuoteForm() {
-  var form = document.getElementById('quote-form');
-  form.addEventListener('submit', function (e) {
-    e.preventDefault();
-    var msg = document.getElementById('quote-msg');
-    var btn = document.getElementById('quote-submit');
-    btn.disabled = true;
-    btn.innerHTML = '<span class="spinner"></span> Sending…';
-    var formData = new FormData(form);
-    fetch('/', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams(formData).toString()
-    })
-      .then(function (res) {
-        if (!res.ok) throw new Error('Submission failed');
-        form.querySelectorAll('input, select, textarea').forEach(function (el) { if (el.type !== 'hidden') el.value = ''; });
-        msg.innerHTML = '<div class="form-msg ok">✓ Request sent — we\'ll call soon. <a href="#booking" style="color:inherit;text-decoration:underline">Continue to Reservation &amp; Agreement →</a></div>';
-        btn.disabled = false;
-        btn.textContent = 'Send Quote Request';
-      })
-      .catch(function () {
-        msg.innerHTML = '<div class="form-msg err">Something went wrong. Please try again or call 432·556·7312.</div>';
-        btn.disabled = false;
-        btn.textContent = 'Send Quote Request';
-      });
-  });
-}
 
 /* =========================================================
    Modals
@@ -1385,7 +1312,6 @@ document.addEventListener('DOMContentLoaded', function () {
   parallax();
   wireBookingForm();
   wirePhotoUploads();
-  wireQuoteForm();
   wireModals();
   showDepositBanner();
 });
