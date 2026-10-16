@@ -433,12 +433,6 @@ canvas[data-particles]{position:fixed;inset:0;z-index:1;pointer-events:none;opac
         <div class="booking-grid">
           <div class="field"><label>Full Name *</label><input required name="name" id="rf-name"></div>
           <div class="field"><label>Phone *</label><input required type="tel" name="phone" id="rf-phone"></div>
-          <div class="field span-2"><label>Street Address *</label><input required name="address" id="rf-address"></div>
-          <div class="field"><label>City *</label><input required name="city" id="rf-city"></div>
-          <div class="field"><label>State *</label><input required name="state" id="rf-state" value="TX"></div>
-          <div class="field"><label>ZIP *</label><input required name="zip" id="rf-zip"></div>
-          <div class="field"><label>Driver's License # *</label><input required name="dl_number" id="rf-dl-number"></div>
-          <div class="field"><label>DL State *</label><input required name="dl_state" id="rf-dl-state" value="TX"></div>
         </div>
 
         <div class="booking-subhead">Upload Documents</div>
@@ -867,8 +861,7 @@ function generateAgreementPDF(data) {
 
   var rows = [
     ['Renter Name', data.name], ['Phone', data.phone],
-    ['Address', data.address + ', ' + data.city + ', ' + data.state + ' ' + data.zip],
-    ["Driver's License #", data.dlNumber + ' (' + data.dlState + ')'],
+    ["Driver's License", 'On file — photo submitted with this agreement'],
     ['Equipment', data.equipment], ['Rental Dates', data.startDate + ' to ' + data.endDate],
     ['Rental Length', data.days + (data.days === 1 ? ' day (24 hours)' : ' days (' + data.days * 24 + ' hours)')],
     ['Pickup Time', data.pickupTime],
@@ -1124,12 +1117,6 @@ function wireBookingForm() {
     var data = {
       name: document.getElementById('rf-name').value,
       phone: document.getElementById('rf-phone').value,
-      address: document.getElementById('rf-address').value,
-      city: document.getElementById('rf-city').value,
-      state: document.getElementById('rf-state').value,
-      zip: document.getElementById('rf-zip').value,
-      dlNumber: document.getElementById('rf-dl-number').value,
-      dlState: document.getElementById('rf-dl-state').value,
       pickupTime: document.getElementById('pickup-time').value,
       returnTime: document.getElementById('return-time').value,
       equipment: equipSel.value,
